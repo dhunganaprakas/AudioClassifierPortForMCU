@@ -1,4 +1,5 @@
 # AudioClassifierPortForMCU
 
 Tensorflow Model
-[!plot](model.png)
+
+![plot](model.png)
