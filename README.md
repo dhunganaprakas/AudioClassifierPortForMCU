@@ -50,7 +50,7 @@ The trained model weights are saved as a binary file to "weights.bin" which will
 file, which can be downloaded after running the python notebook saved as zipped folders test_data_yes.zip and test_data_no.zip. 
 
 ### Developed TensorFlow Model
-[!plot](Images/model.png)
+![plot](Images/model.png)
 
 ## Deploy to Visual Studio Project
 
@@ -82,5 +82,5 @@ The imaze size of the binary are as follows:
 | ZI - Data | 175296    |
 
 Compile and run the program in Simulation mode if you do not have a hardware. Run the program in debug mode, put a breakpoint on ModelInference function call and monitor the 
-value of prediction. If the value of prediction is greater than 0.5 the predicted fed data id "Yes" else "No". 
+value of prediction. If the value of prediction is greater than 0.5 the predicted fed data is "Yes" else "No". 
 
