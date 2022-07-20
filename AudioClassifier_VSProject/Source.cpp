@@ -5,45 +5,62 @@
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
-
-#define WIDTH                           (44U)
-#define HEIGHT                          (73U)
-#define FRAME_SIZE                      (WIDTH * HEIGHT)
-
-#define MODEL_WEIGHTS                   (253U)
-#define KERNEL_WEIGHTS                  (25U)
-#define DENSE_WEIGHTS                   (120U)
-
-#define L2_WIDTH                        (40U)
-#define L2_HEIGHT                       (69U)
-
-#define L3_WIDTH                        (36U)
-#define L3_HEIGHT                       (65U)
-
-#define L4_WIDTH                        (32U)
-#define L4_HEIGHT                       (61U)
-
-#define L5_WIDTH                        (28U)
-#define L5_HEIGHT                       (57U)
-
-#define MAXPOOL_WIDTH                   (24U)
-#define MAXPOOL_HEIGHT                  (53U)
-
-#define DENSE_WIDTH                     (12U)
-#define DENSE_HEIGHT                    (10U)
-
-
 #include <stdio.h>
 #include <stdlib.h>
 
-/** Macro to indicate function returned with expected operation */
-#define E_OK        (0u)
+/** Width of model input image */
+#define WIDTH                           (44U)
 
-/** Macro to indicate function returned with unexpected operation */
-#define E_NOT_OK    (1u)
+/** Height of model input image */
+#define HEIGHT                          (73U)
 
-/** Type definition for standard return type values to integer */
-typedef int Std_ReturnType;
+/** Model input image frame size */
+#define FRAME_SIZE                      (WIDTH * HEIGHT)
+
+/** Number of trained model parameters */
+#define MODEL_WEIGHTS                   (253U)
+
+/** Conv2D 5*5 Matrix kernel weights */
+#define KERNEL_WEIGHTS                  (25U)
+
+/** Size of trained weights in dense layer after Flattened */
+#define DENSE_WEIGHTS                   (120U)
+
+/** Width of model image at Layer 2 */
+#define L2_WIDTH                        (40U)
+
+/** Height of model image at Layer 2 */
+#define L2_HEIGHT                       (69U)
+
+/** Width of model image at Layer 3 */
+#define L3_WIDTH                        (36U)
+
+/** Height of model image at Layer 3 */
+#define L3_HEIGHT                       (65U)
+
+/** Width of model image at Layer 4 */
+#define L4_WIDTH                        (32U)
+
+/** Height of model image at Layer 4 */
+#define L4_HEIGHT                       (61U)
+
+/** Width of model image at Layer 5 */
+#define L5_WIDTH                        (28U)
+
+/** Height of model image at Layer 5 */
+#define L5_HEIGHT                       (57U)
+
+/** Width of model image at Maxpool Layer */
+#define MAXPOOL_WIDTH                   (24U)
+
+/** Width of model image at Maxpool Layer */
+#define MAXPOOL_HEIGHT                  (53U)
+
+/** Width of model image after Maxpool Layer  */
+#define DENSE_WIDTH                     (12U)
+
+/** Width of model image after Maxpool Layer */
+#define DENSE_HEIGHT                    (10U)
 
 /** 5X5 Matrix to store pixel data and kernel matrices */
 typedef float Mat5[5][5];
@@ -51,24 +68,114 @@ typedef float Mat5[5][5];
 /** 5X5 Matrix to store pixel data and kernel matrices */
 typedef float MatMaxPool5X2[5][2];
 
-/** Creating Global Place holders for Weights*/
+/** Creating Global Place holders for trained model weights*/
 Mat5 Kernel_L1, Kernel_L2, Kernel_L3, Kernel_L4, Kernel_L5;
 float Bais_L1, Bais_L2, Bais_L3, Bais_L4, Bais_L5, Bais_L7, Bais_L8;
 float* Weights_L7 = (float*)malloc(DENSE_WEIGHTS * sizeof(float));
 float Weight_L8;
 
+/**
+ * @brief Function to read 5*5 kernel form trained weights
+ * 
+ * @param[in] src           Source data pointer to read model weights
+ * @param[inout] lReturn    Kernel with model weights 
+ */
 void Populate_KernelMat5(float* src, Mat5 lReturn);
+
+/**
+ * @brief Function to read dense layer weights form trained weights
+ * 
+ * @param src   Source data pointer to read model weights
+ * @param dst   Destination data pointer to write model weights
+ * @param size  Length of dense weights
+ */
 void Populate_DenseWeights(float* src, float* dst, int size);
-void Populate_PixelMat5(int row, int column, int width, float* src, Mat5 lReturn);
+
+/**
+ * @brief Extracts pixel data from source image of shape 5*5 pixels
+ * 
+ * @param[in] row           Pixel row position to copy pixel data from
+ * @param[in] column        Pixel column position to copy pixel data from
+ * @param[in] width         Width of source image  
+ * @param[in] src           Source image pointer from which pixel data is required 
+ * @param[inout] lReturn    Mat5 filled with source image pixel data 
+ */
+static void Populate_PixelMat5(int row, int column, int width, float* src, Mat5 lReturn);
+
+/**
+ * @brief Performs Conv2D operation for Con2D Layers from tensorflow
+ * 
+ * @param[in] src       Source image pointer on which Conv2D is performed
+ * @param[in] height    Height of source image
+ * @param[in] width     Width of source image
+ * @param[inout] dst    Destination image pointer on which pixel data is stored obtained after Conv2D operation    
+ * @param[in] kernel    Kernl values to operate Conv2D     
+ */
 void Conv2DLayer_KernelSize5(float* src, int height, int width, float* dst, Mat5 kernel);
+
+/**
+ * @brief Adds bais values to datas obtained after convolution and fully connected layer and also performs ELU activation function
+ * 
+ * @param[in] val_bais  Bais value to add on obtained values 
+ * @param[in] src_size  Size of data fed to add bais values
+ * @param[inout] src    Pointer to source data
+ */
 void AddBais(float val_bais, int src_size, float* src);
+
+/**
+ * @brief Gets maximum values of the matrix for Maxpool layer
+ * 
+ * @param[in] mat_pixel Pixel values to get maximum value 
+ * @return float        Maximum value among 5*2 matrix
+ */
 float Get_Maximum(MatMaxPool5X2 mat_pixel);
-void Perform_MaxPool(int row, int column, float* src, int in_width, float* dst);
+
+/**
+ * @brief Performs Maxpooling operation with stride_width and stride_height
+ * 
+ * @param[in] src           Source data pointer to perform Maxpooling 
+ * @param[inout] dst        Destination data pointer to store data after performing Maxpooling 
+ * @param[in] stride_width  Maxpool stride witdh size 
+ * @param[in] stride_height Maxpool stride height size
+ * @param[in] in_height     Height of 2D input data
+ * @param[in] in_width      Width of 2D input data
+ * @param[in] dst_width     Width of 2D output data 
+ */
 void MaxPoolLayer(float* src, float* dst, int stride_width, int stride_height, int in_height, int in_width, int dst_width);
+
+/**
+ * @brief Performs dense calculation for fully connected layer
+ * 
+ * @param[in] src_pixel     Source data pointer to perform dense calculation 
+ * @param[in] kernel        Trained model weights to perform calculation
+ * @param[in] length        Input dense layer size
+ * @return[out] float       Output value after dense calculation for input depth of 1
+ */
 float FullyConnectedLayer(float* src_pixel, float* kernel, int length);
+
+/**
+ * @brief Performs sigmoid operation
+ * 
+ * @param[in] value     Input to calculate sigmoid 
+ * @return[out] float   Sigmoid value 
+ */
 float Sigmoid(float value);
+
+/**
+ * @brief Read trained model parameters and stores in appropriate global place holders 
+ * 
+ * @param[in] fname Filename to read trained model parameters 
+ */
 void Read_ModelParamaters(char* fname);
+
+/**
+ * @brief Port tensorflow keras model to C Function 
+ * 
+ * @param[in] src_pixel Source data pointer for model input image 
+ * @return[out] float Prediction value for binary clasification (Yes/No - 1/0)
+ */
 float Model_Inference(float* src_pixel);
+
 
 int main(int argc, char* argv[])
 {
@@ -106,7 +213,6 @@ int main(int argc, char* argv[])
     }
 
     printf("Valid: %d, Invalid: %d, Total: %d \n", valid, invalid, valid + invalid);
-    printf("\n\n");
 
     valid = 0;
     invalid = 0;
@@ -174,35 +280,44 @@ float Model_Inference(float* src_pixel)
     /*Layer 1*/
     float* audio_out_layer1 = (float*)malloc(L2_WIDTH * L2_HEIGHT * sizeof(float));
     Conv2DLayer_KernelSize5(src_pixel, HEIGHT, WIDTH, audio_out_layer1, Kernel_L1);
+    /* Add baises and ELU activation function */
     AddBais(Bais_L1, L2_WIDTH * L2_HEIGHT, audio_out_layer1);
     /*Layer 2*/
     float* audio_out_layer2 = (float*)malloc(L3_WIDTH * L3_HEIGHT * sizeof(float));
     Conv2DLayer_KernelSize5(audio_out_layer1, L2_HEIGHT, L2_WIDTH, audio_out_layer2, Kernel_L2);
+    /* Add baises and ELU activation function */
     AddBais(Bais_L2, L3_WIDTH * L3_HEIGHT, audio_out_layer2);
     /*Layer 3*/
     float* audio_out_layer3 = (float*)malloc(L4_WIDTH * L4_HEIGHT * sizeof(float));
     Conv2DLayer_KernelSize5(audio_out_layer2, L3_HEIGHT, L3_WIDTH, audio_out_layer3, Kernel_L3);
+    /* Add baises and ELU activation function */
     AddBais(Bais_L3, L4_WIDTH * L4_HEIGHT, audio_out_layer3);
     /*Layer 4*/
     float* audio_out_layer4 = (float*)malloc(L5_WIDTH * L5_HEIGHT * sizeof(float));
     Conv2DLayer_KernelSize5(audio_out_layer3, L4_HEIGHT, L4_WIDTH, audio_out_layer4, Kernel_L4);
+    /* Add baises and ELU activation function */
     AddBais(Bais_L4, L5_WIDTH * L5_HEIGHT, audio_out_layer4);
     /*Layer 5*/
     float* audio_out_layer5 = (float*)malloc(MAXPOOL_WIDTH * MAXPOOL_HEIGHT * sizeof(float));
     Conv2DLayer_KernelSize5(audio_out_layer4, L5_HEIGHT, L5_WIDTH, audio_out_layer5, Kernel_L5);
+    /* Add baises and ELU activation function */
     AddBais(Bais_L5, MAXPOOL_WIDTH * MAXPOOL_HEIGHT, audio_out_layer5);
     /*Layer 6 - MaxPooling of size (5,2)*/
     float* audio_out_layer6 = (float*)malloc(DENSE_WIDTH * DENSE_HEIGHT * sizeof(float));
+    /*Layer 6 - MaxPooling of size (5,2)*/
     MaxPoolLayer(audio_out_layer5, audio_out_layer6, 2, 5, MAXPOOL_HEIGHT, MAXPOOL_WIDTH, DENSE_WIDTH);
 
+    /* Layer 7 Dense layer calculations and Add baises */
     float temp = FullyConnectedLayer(audio_out_layer6, Weights_L7, DENSE_WEIGHTS) + Bais_L7;
+    /* ELU activation function for Layer 7 */
     if (temp < 0)
         temp = (float)exp(temp) - 1;
 
+    /* Layer 8 */
     float retval = temp * Weight_L8 + Bais_L8;
+    /* Final activation function - Layer 8*/
     retval = Sigmoid(retval);
-
-    printf("Predicted Audio: %f \n", retval);
+    
     return retval;
 }
 
