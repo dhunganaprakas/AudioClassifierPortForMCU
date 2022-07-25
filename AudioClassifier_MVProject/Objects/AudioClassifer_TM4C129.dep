@@ -1,0 +1,19 @@
+Dependencies for Project 'AudioClassifer', Target 'TM4C129': (DO NOT MODIFY !)
+CompilerVersion: 6180000::V6.18::ARMCLANG
+F (.\Source.c)(0x62D97654)(-xc -std=c90 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -gdwarf-4 -O0 -ffunction-sections -w-I./RTE/_TM4C129-IC:/Users/Lenovo/AppData/Local/Arm/Packs/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IC:/Users/Lenovo/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C129-D__UVISION_VERSION="537" -D_RTE_ -DTM4C1290NCPDT -D_RTE_-o ./objects/source.o -MD)
+I (C:\Keil_v5\ARM\ARMCLANG\include\stdint.h)(0x6252B538)
+I (C:\Keil_v5\ARM\ARMCLANG\include\math.h)(0x6252B536)
+I (C:\Keil_v5\ARM\ARMCLANG\include\string.h)(0x6252B536)
+I (C:\Keil_v5\ARM\ARMCLANG\include\stdio.h)(0x6252B536)
+I (C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h)(0x6252B536)
+I (C:\Keil_v5\ARM\ARMCLANG\include\float.h)(0x6252B536)
+F (RTE/Device/TM4C1290NCPDT/startup_TM4C129.s)(0x62D97654)(--target=armv7em-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -masm=auto -c-gdwarf-4 -Wa,armasm,--pd,"__EVAL SETA 1"-I./RTE/_TM4C129-IC:/Users/Lenovo/AppData/Local/Arm/Packs/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IC:/Users/Lenovo/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C129-Wa,armasm,--pd,"__UVISION_VERSION SETA 537" -Wa,armasm,--pd,"_RTE_ SETA 1" -Wa,armasm,--pd,"TM4C1290NCPDT SETA 1" -Wa,armasm,--pd,"_RTE_ SETA 1"-o ./objects/startup_tm4c129.o)
+F (RTE/Device/TM4C1290NCPDT/system_TM4C129.c)(0x62D97654)(-xc -std=c90 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=none -mfloat-abi=soft -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -gdwarf-4 -O0 -ffunction-sections -w-I./RTE/_TM4C129-IC:/Users/Lenovo/AppData/Local/Arm/Packs/ARM/CMSIS/5.9.0/CMSIS/Core/Include-IC:/Users/Lenovo/AppData/Local/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C129-D__UVISION_VERSION="537" -D_RTE_ -DTM4C1290NCPDT -D_RTE_-o ./objects/system_tm4c129.o -MD)
+I (C:\Keil_v5\ARM\ARMCLANG\include\stdint.h)(0x6252B538)
+I (C:\Users\Lenovo\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129\TM4C129.h)(0x530EF2F6)
+I (C:\Users\Lenovo\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129\TM4C1290NCPDT.h)(0x530EF2F6)
+I (C:\Users\Lenovo\AppData\Local\Arm\Packs\ARM\CMSIS\5.9.0\CMSIS\Core\Include\core_cm4.h)(0x626F9F3E)
+I (C:\Users\Lenovo\AppData\Local\Arm\Packs\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_version.h)(0x626F9F3E)
+I (C:\Users\Lenovo\AppData\Local\Arm\Packs\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_compiler.h)(0x626F9F3E)
+I (C:\Users\Lenovo\AppData\Local\Arm\Packs\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_armclang.h)(0x626F9F3E)
+I (C:\Users\Lenovo\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129\system_TM4C129.h)(0x51BFFEEA)

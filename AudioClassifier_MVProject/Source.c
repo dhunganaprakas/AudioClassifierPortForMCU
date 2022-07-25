@@ -643,12 +643,11 @@ static float Get_Maximum(MatMaxPool5X2 mat_pixel);
 static void MaxPoolLayer(float* src, float* dst, int stride_width, int stride_height, int in_height, int in_width, int dst_width);
 
 /**
- * @brief Performs dense calculation for fully connected layer
+ * @brief Performs dense calculation for fully connected layer. Output value after dense calculation for input depth of 1.
  * 
  * @param[in] src_pixel     Source data pointer to perform dense calculation 
  * @param[in] kernel        Trained model weights to perform calculation
- * @param[in] length        Input dense layer size
- * @return[out] float       Output value after dense calculation for input depth of 1
+ * @param[in] length        Input dense layer size     
  */
 static float FullyConnectedLayer(float* src_pixel, float* kernel, int length);
 

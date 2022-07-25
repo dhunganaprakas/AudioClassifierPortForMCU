@@ -52,19 +52,240 @@ file, which can be downloaded after running the python notebook saved as zipped 
 ### Developed TensorFlow Model
 ![plot](Images/model.png)
 
+
+## Porting trained model to CPP Program
+
+The trained model summary is shown below:
+
+| Layer (type)                  | Output Shape              | Paramemeter | Layer weights | Bais Weights  |
+|:-----------------------------:|:-------------------------:|:-----------:|:-------------:|:-------------:|
+| conv2d(Conv2D)                | (None, 69, 40, 1)         | 26          | 25            | 1             |
+| conv2d(Conv2D)                | (None, 65, 36, 1)         | 26          | 25            | 1             |
+| conv2d(Conv2D)                | (None, 61, 32, 1)         | 26          | 25            | 1             |
+| conv2d(Conv2D)                | (None, 57, 28, 1)         | 26          | 25            | 1             |
+| conv2d(Conv2D)                | (None, 53, 24, 1)         | 26          | 25            | 1             |
+| max_pooling2d(MaxPooling2D)   | (None, 10, 12, 1)         | 0           | 0             | 0             |
+| flatten(Flatten)              | (None, 120)               | 0           | 0             | 0             |
+| dense(Dense)                  | (None, 1)                 | 121         | 120           | 1             |
+| dense(Dense)                  | (None, 1)                 | 2           | 1             | 1             |
+
+Total Trainable parameters: 253
+
+The input shape of the spectogram image fed to the model is (73, 44, 1).
+
+The trained model weights are extracted using model.weights() in python and saved as binary file using file handler as raw data.For each layer there are trained weights that 
+are used to perform mathematical operations besides macpooling and flatten layer. For ease of convinience of porting to CPP and finally to Keil Micro Vision, the layer depth,  
+Conv2D kernel size are kept at 1 and 5x5 with stride of (1,1) respectively. In addition to that, Exponential Linear Unit is used as activation function for each layer except 
+the final Dense layer which uses Sigmoid activation function. For each model layer operation in python, three functionally different functions are implemented on CPP source 
+file. Each layer consists of preliminary operation after which the layer is named, addition of bais and finally activation function. 
+
+The summary of model form TensorFlow to CPP is shown below.
+
+<table>
+<caption>Details of trained model equivalence in TensorFlow and C</caption>
+    <thead>
+        <tr>
+            <th>TensorFlow Audio Classifier Layer</th>
+            <th>Audio Classifier Model ported to C</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td rowspan=3>conv2d(Conv2D)</td>
+            <td>Conv2DLayer_KernelSize5</td>
+        </tr>
+        <tr>
+            <td>AddBais</td>
+        </tr>
+        <tr>
+            <td>Activation_ELU</td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
+            <td rowspan=3>conv2d(Conv2D)</td>
+            <td>Conv2DLayer_KernelSize5</td>
+        </tr>
+        <tr>
+            <td>AddBais</td>
+        </tr>
+        <tr>
+            <td>Activation_ELU</td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
+            <td rowspan=3>conv2d(Conv2D)</td>
+            <td>Conv2DLayer_KernelSize5</td>
+        </tr>
+        <tr>
+            <td>AddBais</td>
+        </tr>
+        <tr>
+            <td>Activation_ELU</td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
+            <td rowspan=3>conv2d(Conv2D)</td>
+            <td>Conv2DLayer_KernelSize5</td>
+        </tr>
+        <tr>
+            <td>AddBais</td>
+        </tr>
+        <tr>
+            <td>Activation_ELU</td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
+            <td rowspan=3>conv2d(Conv2D)</td>
+            <td>Conv2DLayer_KernelSize5</td>
+        </tr>
+        <tr>
+            <td>AddBais</td>
+        </tr>
+        <tr>
+            <td>Activation_ELU</td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
+            <td>max_pooling2d(MaxPooling2D)</td>
+            <td>MaxPoolLayer</td>
+        </tr>
+    </tbody>
+        <tbody>
+        <tr>
+            <td>flatten(Flatten)</td>
+            <td><b>Not Required</b></td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
+            <td rowspan=3>dense(Dense)</td>
+            <td>FullyConnectedLayer</td>
+        </tr>
+        <tr>
+            <td>AddBais</td>
+        </tr>
+        <tr>
+            <td>Activation_ELU</td>
+        </tr>
+    </tbody>
+    <tbody>
+        <tr>
+            <td rowspan=3>dense(Dense)</td>
+            <td>FullyConnectedLayer</td>
+        </tr>
+        <tr>
+            <td>AddBais</td>
+        </tr>
+        <tr>
+            <td>Activation_Sigmoid</td>
+        </tr>
+    </tbody>
+</table>
+
+
+### Conv2DLayer_KernelSize5
+
+Function Parameters:
+
+| Parameter  |Data type | Description   |
+|:----------:|:--------:|:-------------:|
+| src        | float*   | Source image pointer on which Conv2D is performed |
+| height     | int      | Height of source image |
+| width      | int      | Width of source image |
+| dst        | float*   | Destination image pointer on which pixel data is stored obtained after Conv2D operation |
+| kernel     | float [5][5]     | Kernel values to operate Conv2D |
+
+The 5x5 pixel data is extracted for src pointer according to the row and column position and is repeated until height and width of the 2D spectogram data. The operation is 
+carried out as: 
+
+$$dst = \sum_{i=0}^4 \sum_{j=0}^4 pixel[i][j]*kernel[i][j]$$
+
+### AddBais
+
+Function Parameters:
+
+| Parameter  |Data type | Description   |
+|:----------:|:--------:|:-------------:|
+| val_bais   | float    | Bais value to add on obtained values |
+| src_size   | int      | Size of data fed to add bais values |
+| src        | float*   | Pointer to source data |
+
+The operation is carried out using equation below for all source data values.
+
+$$dst = pixel + val_bais$$
+
+### MaxPoolLayer
+
+Function Parameters:
+
+| Parameter         | Data type | Description   |
+|:-----------------:|:---------:|:-------------:|
+| src               | float*    | Source data pointer to perform Maxpooling |
+| dst               | float*    | Destination data pointer to store data after performing Maxpooling |
+| stride_width      | int       | Maxpool stride witdh size |
+| stride_height     | int       | Maxpool stride height size |
+| in_height         | int       | Height of 2D input data |
+| in_width          | int       | Width of 2D input data |
+| dst_width         | int       | Width of 2D output data |
+
+Maximum value of 5x2 matrix with vertical and horizontal strides of 5 and 2 pixels is used to carry out maxpooling operation.
+
+
+### FullyConnectedLayer
+
+Function Parameters:
+
+| Parameter  | Data type | Description   |
+|:----------:|:---------:|:-------------:|
+| src_pixel  | float*    | Source data pointer to perform dense calculation |
+| kernel     | float     | Trained model weights to perform calculation |
+| length     | int       | Input dense layer size |
+
+The operation is carried out as: 
+
+$$dst = \sum_{i=0}^length pixel[i]*kernel[i]$$
+
+### Activation_ELU
+
+Function Parameters:
+
+| Parameter  |Data type | Description   |
+|:----------:|:--------:|:-------------:|
+| src_size   | int      | Size of data fed to add bais values |
+| src        | float*   | Pointer to source data |
+
+For those source data values, which is less than one ELU is applied, else the same value of data is assigned.
+
+$$src = \exp(src) - 1$$
+
+### Activation_Sigmoid
+
+Function Parameters:
+
+| Parameter  |Data type | Description   |
+|:----------:|:--------:|:-------------:|
+| src_size   | int      | Size of data fed to add bais values |
+| src        | float*   | Pointer to source data |
+
+For all source data values Sigmoid function is applied.
+
+$$src = 1 / ( 1 + \exp(-src))$$
+
+
 ## Deploy to Visual Studio Project
 
 The saved weights were read from the binary file "weights.bin" and the datas were read form folder test_data_yes and test_data_no. After reading the model weights and audio 
-binary data, it can be fed to inference function to make a prediction. When porting following layers and functions can be seen as equivalent.
+binary data, it can be fed to inference function to make a prediction. Also, activation functions for ELU and Sigmoid are also taken into consideration and used after addition 
+of bais values. 
 
-| TensorFlow Layer               | AudioClassifier Function |
-|:------------------------------:|:------------------------:|
-| Conv2D(kernel_size=(5,5))      | Conv2DLayer_KernelSize5  |
-| MaxPooling2D(pool_size=(5, 2)) | MaxPoolLayer             |
-| Flatten                        | Not Required - 1D raw data used |
-| Dense                          | FullyConnectedLayer      |
+# Porting Model to Keil Micro Vision for Implementation in MCU
 
-Also, activation functions for ELU and Sigmoid are also taken into consideration and used after addition of bais values. 
+
 
 ## Deploy to Keil Micro Vision Project for MCU TM4C129xxx 
 
